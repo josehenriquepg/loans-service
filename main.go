@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"net/http"
 	"strings"
 )
 
@@ -49,4 +51,31 @@ func getAvailableLoans(c CustomerRequest) []LoanDetail {
 	}
 
 	return loans
+}
+
+// Handler HTTP to process the request and determine loan options
+func loanOptionsHandler(w http.ResponseWriter, r *http.Request) {
+	var c CustomerRequest
+
+	// Decode JSON request body into structure CustomerRequest
+	if err := json.NewDecoder(r.Body).Decode(&c); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Determine available loan terms
+	loans := getAvailableLoans(c)
+
+	// Prepare the answer
+	response := LoanResponse{
+		Customer: c.Name,
+		Loans:    loans,
+	}
+
+	// Encode the response in JSON format
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
