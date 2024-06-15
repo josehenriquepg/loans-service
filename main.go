@@ -79,3 +79,11 @@ func loanOptionsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func main() {
+	// Register the HTTP handler
+	http.HandleFunc("/customer-loans", loanOptionsHandler)
+
+	// Start the HTTP server on port 8080
+	http.ListenAndServe(":8080", nil)
+}
